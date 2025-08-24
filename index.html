@@ -42,6 +42,17 @@
         .download-btn:hover {
             @apply shadow-lg transform scale-105;
         }
+        .transparent-active {
+            @apply border-blue-500 bg-blue-50;
+        }
+        .qr-preview-container {
+            max-width: 100%;
+            overflow: auto;
+        }
+        .qr-preview-container canvas {
+            max-width: 100%;
+            height: auto;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
@@ -147,6 +158,10 @@
                             <div class="flex items-center space-x-4">
                                 <input type="color" id="bg-color" value="#FFFFFF" class="w-16 h-12 rounded-lg border-2 border-gray-300 cursor-pointer">
                                 <input type="text" id="bg-color-hex" value="#FFFFFF" class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <button id="transparent-bg" class="px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-blue-500 transition-all duration-200 text-sm font-medium">
+                                    <i class="fas fa-eye-slash mr-2"></i>
+                                    Transparent
+                                </button>
                             </div>
                         </div>
                         <div>
@@ -310,7 +325,7 @@
                     Live Preview
                 </h3>
                 <div class="flex items-center justify-center min-h-96">
-                    <div id="qr-preview" class="text-center">
+                    <div id="qr-preview" class="text-center qr-preview-container">
                         <div class="w-64 h-64 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
                             <i class="fas fa-qrcode text-6xl text-gray-400"></i>
                         </div>

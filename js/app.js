@@ -10,7 +10,8 @@ class QRCodeBuilder {
             cornerStyle: 'dots',
             icon: null,
             iconSize: 25,
-            size: 512
+            size: 512,
+            isTransparent: false
         };
         
         this.qrCode = null;
@@ -79,12 +80,23 @@ class QRCodeBuilder {
         document.getElementById('bg-color').addEventListener('change', (e) => {
             this.qrData.bgColor = e.target.value;
             document.getElementById('bg-color-hex').value = e.target.value;
+            this.qrData.isTransparent = false;
+            this.updateTransparentButton();
             this.generateQR();
         });
         
         document.getElementById('bg-color-hex').addEventListener('input', (e) => {
             this.qrData.bgColor = e.target.value;
             document.getElementById('bg-color').value = e.target.value;
+            this.qrData.isTransparent = false;
+            this.updateTransparentButton();
+            this.generateQR();
+        });
+
+        // Transparent background button
+        document.getElementById('transparent-bg').addEventListener('click', () => {
+            this.qrData.isTransparent = !this.qrData.isTransparent;
+            this.updateTransparentButton();
             this.generateQR();
         });
 
@@ -158,6 +170,18 @@ class QRCodeBuilder {
 
         // Initialize
         this.updateContentPlaceholder();
+        this.updateTransparentButton();
+    }
+
+    updateTransparentButton() {
+        const transparentBtn = document.getElementById('transparent-bg');
+        if (this.qrData.isTransparent) {
+            transparentBtn.classList.add('transparent-active');
+            transparentBtn.innerHTML = '<i class="fas fa-eye mr-2"></i>Opaque';
+        } else {
+            transparentBtn.classList.remove('transparent-active');
+            transparentBtn.innerHTML = '<i class="fas fa-eye-slash mr-2"></i>Transparent';
+        }
     }
 
     nextStep() {
@@ -336,7 +360,7 @@ class QRCodeBuilder {
                     type: this.qrData.cornerStyle
                 },
                 backgroundOptions: {
-                    color: this.qrData.bgColor
+                    color: this.qrData.isTransparent ? 'transparent' : this.qrData.bgColor
                 },
                 cornersSquareOptions: {
                     type: this.qrData.cornerStyle
@@ -402,7 +426,8 @@ class QRCodeBuilder {
             cornerStyle: 'dots',
             icon: null,
             iconSize: 25,
-            size: 512
+            size: 512,
+            isTransparent: false
         };
 
         // Reset UI
@@ -428,6 +453,7 @@ class QRCodeBuilder {
         this.updateNavigationButtons();
         this.updateContentPlaceholder();
         this.updateContentPreview();
+        this.updateTransparentButton();
         this.generateQR();
     }
 }
