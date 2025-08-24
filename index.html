@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Builder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.6.0/lib/qr-code-styling.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .step-active {
+            @apply bg-blue-600 text-white shadow-lg;
+        }
+        .step-completed {
+            @apply bg-green-500 text-white shadow-md hover:shadow-lg transition-all duration-200;
+        }
+        .step-pending {
+            @apply bg-gray-200 text-gray-600;
+        }
+        .step-indicator {
+            transition: all 0.2s ease-in-out;
+        }
+        .step-indicator:hover {
+            transform: translateY(-2px);
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .drag-over {
+            @apply border-blue-500 bg-blue-50;
+        }
+        .corner-style-btn:hover {
+            @apply shadow-md transform scale-105;
+        }
+        .size-btn:hover {
+            @apply shadow-md transform scale-105;
+        }
+        .download-btn:hover {
+            @apply shadow-lg transform scale-105;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">
+                <i class="fas fa-qrcode text-blue-600 mr-3"></i>
+                QR Code Builder
+            </h1>
+            <p class="text-gray-600">Create beautiful, customized QR codes in just a few steps</p>
+        </div>
+
+        <!-- Progress Steps -->
+        <div class="mb-8">
+            <div class="flex justify-center items-center space-x-4 mb-4">
+                <div class="step-indicator step-active cursor-pointer" data-step="1">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center font-semibold">
+                        <i class="fas fa-link"></i>
+                    </div>
+                    <span class="text-sm mt-1">Content</span>
+                </div>
+                <div class="w-16 h-1 bg-gray-200 rounded"></div>
+                <div class="step-indicator step-pending cursor-pointer" data-step="2">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center font-semibold">
+                        <i class="fas fa-palette"></i>
+                    </div>
+                    <span class="text-sm mt-1">Colors</span>
+                </div>
+                <div class="w-16 h-1 bg-gray-200 rounded"></div>
+                <div class="step-indicator step-pending cursor-pointer" data-step="3">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center font-semibold">
+                        <i class="fas fa-image"></i>
+                    </div>
+                    <span class="text-sm mt-1">Icon</span>
+                </div>
+                <div class="w-16 h-1 bg-gray-200 rounded"></div>
+                <div class="step-indicator step-pending cursor-pointer" data-step="4">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center font-semibold">
+                        <i class="fas fa-expand"></i>
+                    </div>
+                    <span class="text-sm mt-1">Size</span>
+                </div>
+                <div class="w-16 h-1 bg-gray-200 rounded"></div>
+                <div class="step-indicator step-pending cursor-pointer" data-step="5">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center font-semibold">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <span class="text-sm mt-1">Download</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Step Content -->
+            <div class="bg-white rounded-2xl shadow-xl p-8">
+                <!-- Step 1: Content -->
+                <div class="step-content" id="step-1">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                        <i class="fas fa-link text-blue-600 mr-3"></i>
+                        What should your QR code contain?
+                    </h2>
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Content Type</label>
+                            <select id="content-type" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="url">Website URL</option>
+                                <option value="text">Plain Text</option>
+                                <option value="email">Email Address</option>
+                                <option value="phone">Phone Number</option>
+                                <option value="wifi">WiFi Network</option>
+                                <option value="vcard">Contact Card</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Content</label>
+                            <textarea id="qr-content" rows="4" placeholder="Enter your content here..." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"></textarea>
+                        </div>
+                        <div id="content-preview" class="p-4 bg-gray-50 rounded-lg hidden">
+                            <h4 class="font-medium text-gray-800 mb-2">Preview:</h4>
+                            <p id="preview-text" class="text-sm text-gray-600"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Colors -->
+                <div class="step-content hidden" id="step-2">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                        <i class="fas fa-palette text-blue-600 mr-3"></i>
+                        Choose your colors
+                    </h2>
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">QR Code Color</label>
+                            <div class="flex items-center space-x-4">
+                                <input type="color" id="qr-color" value="#000000" class="w-16 h-12 rounded-lg border-2 border-gray-300 cursor-pointer">
+                                <input type="text" id="qr-color-hex" value="#000000" class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Background Color</label>
+                            <div class="flex items-center space-x-4">
+                                <input type="color" id="bg-color" value="#FFFFFF" class="w-16 h-12 rounded-lg border-2 border-gray-300 cursor-pointer">
+                                <input type="text" id="bg-color-hex" value="#FFFFFF" class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Corner Style</label>
+                            <div class="grid grid-cols-3 gap-3">
+                                <button class="corner-style-btn p-3 border-2 border-gray-300 rounded-lg hover:border-blue-500 transition-all duration-200" data-style="dots">
+                                    <div class="w-6 h-6 bg-black rounded-full mx-auto mb-2"></div>
+                                    <span class="text-xs">Dots</span>
+                                </button>
+                                <button class="corner-style-btn p-3 border-2 border-gray-300 rounded-lg hover:border-blue-500 transition-all duration-200" data-style="square">
+                                    <div class="w-6 h-6 bg-black mx-auto mb-2"></div>
+                                    <span class="text-xs">Square</span>
+                                </button>
+                                <button class="corner-style-btn p-3 border-2 border-gray-300 rounded-lg hover:border-blue-500 transition-all duration-200" data-style="rounded">
+                                    <div class="w-6 h-6 bg-black rounded mx-auto mb-2"></div>
+                                    <span class="text-xs">Rounded</span>
+                                </button>
+                                <button class="corner-style-btn p-3 border-2 border-gray-300 rounded-lg hover:border-blue-500 transition-all duration-200" data-style="extra-rounded">
+                                    <div class="w-6 h-6 bg-black rounded-lg mx-auto mb-2"></div>
+                                    <span class="text-xs">Extra Rounded</span>
+                                </button>
+                                <button class="corner-style-btn p-3 border-2 border-gray-300 rounded-lg hover:border-blue-500 transition-all duration-200" data-style="classy">
+                                    <div class="w-6 h-6 bg-black rounded-md mx-auto mb-2"></div>
+                                    <span class="text-xs">Classy</span>
+                                </button>
+                                <button class="corner-style-btn p-3 border-2 border-gray-300 rounded-lg hover:border-blue-500 transition-all duration-200" data-style="classy-rounded">
+                                    <div class="w-6 h-6 bg-black rounded-lg mx-auto mb-2"></div>
+                                    <span class="text-xs">Classy Rounded</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Icon -->
+                <div class="step-content hidden" id="step-3">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                        <i class="fas fa-image text-blue-600 mr-3"></i>
+                        Add a custom icon (optional)
+                    </h2>
+                    <div class="space-y-6">
+                        <div id="upload-zone" class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors cursor-pointer">
+                            <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+                            <p class="text-lg font-medium text-gray-700 mb-2">Drop your icon here</p>
+                            <p class="text-sm text-gray-500 mb-4">or click to browse files</p>
+                            <input type="file" id="icon-upload" accept="image/*" class="hidden">
+                            <button class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                Choose File
+                            </button>
+                        </div>
+                        <div id="icon-preview" class="hidden">
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <img id="preview-icon" class="w-12 h-12 object-cover rounded" alt="Icon preview">
+                                    <div>
+                                        <p id="icon-name" class="font-medium text-gray-800"></p>
+                                        <p id="icon-size" class="text-sm text-gray-500"></p>
+                                    </div>
+                                </div>
+                                <button id="remove-icon" class="text-red-500 hover:text-red-700">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Icon Size</label>
+                            <input type="range" id="icon-size-slider" min="10" max="50" value="25" class="w-full">
+                            <div class="flex justify-between text-sm text-gray-500 mt-1">
+                                <span>Small</span>
+                                <span id="icon-size-value">25%</span>
+                                <span>Large</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Size -->
+                <div class="step-content hidden" id="step-4">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                        <i class="fas fa-expand text-blue-600 mr-3"></i>
+                        Choose the size
+                    </h2>
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">QR Code Size</label>
+                            <div class="grid grid-cols-2 gap-4">
+                                <button class="size-btn p-4 border-2 border-gray-300 rounded-lg hover:border-blue-500 transition-all duration-200" data-size="256">
+                                    <div class="text-center">
+                                        <div class="w-16 h-16 bg-gray-200 rounded mx-auto mb-2"></div>
+                                        <span class="font-medium">Small (256px)</span>
+                                        <p class="text-sm text-gray-500">For web use</p>
+                                    </div>
+                                </button>
+                                <button class="size-btn p-4 border-2 border-gray-300 rounded-lg hover:border-blue-500 transition-all duration-200" data-size="512">
+                                    <div class="text-center">
+                                        <div class="w-20 h-20 bg-gray-200 rounded mx-auto mb-2"></div>
+                                        <span class="font-medium">Medium (512px)</span>
+                                        <p class="text-sm text-gray-500">For print</p>
+                                    </div>
+                                </button>
+                                <button class="size-btn p-4 border-2 border-gray-300 rounded-lg hover:border-blue-500 transition-all duration-200" data-size="1024">
+                                    <div class="text-center">
+                                        <div class="w-24 h-24 bg-gray-200 rounded mx-auto mb-2"></div>
+                                        <span class="font-medium">Large (1024px)</span>
+                                        <p class="text-sm text-gray-500">High quality</p>
+                                    </div>
+                                </button>
+                                <button class="size-btn p-4 border-2 border-gray-300 rounded-lg hover:border-blue-500 transition-all duration-200" data-size="2048">
+                                    <div class="text-center">
+                                        <div class="w-28 h-28 bg-gray-200 rounded mx-auto mb-2"></div>
+                                        <span class="font-medium">Extra Large (2048px)</span>
+                                        <p class="text-sm text-gray-500">Professional</p>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Custom Size</label>
+                            <div class="flex items-center space-x-4">
+                                <input type="number" id="custom-size" min="100" max="4096" value="512" class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <span class="text-gray-500">px</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 5: Preview & Download -->
+                <div class="step-content hidden" id="step-5">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                        <i class="fas fa-download text-blue-600 mr-3"></i>
+                        Preview and download
+                    </h2>
+                    <div class="space-y-6">
+                        <div class="text-center">
+                            <p class="text-gray-600 mb-4">Your QR code is ready! Review it below and download in your preferred format.</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button id="download-png" class="download-btn flex items-center justify-center space-x-2 p-4 border-2 border-gray-300 rounded-lg hover:border-blue-500 transition-all duration-200">
+                                <i class="fas fa-image text-blue-600"></i>
+                                <span>Download PNG</span>
+                            </button>
+                            <button id="download-svg" class="download-btn flex items-center justify-center space-x-2 p-4 border-2 border-gray-300 rounded-lg hover:border-blue-500 transition-all duration-200">
+                                <i class="fas fa-file-code text-blue-600"></i>
+                                <span>Download SVG</span>
+                            </button>
+                        </div>
+                        <div class="text-center">
+                            <button id="create-new" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors">
+                                <i class="fas fa-plus mr-2"></i>
+                                Create Another QR Code
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview Area -->
+            <div class="bg-white rounded-2xl shadow-xl p-8">
+                <h3 class="text-xl font-bold text-gray-800 mb-6">
+                    <i class="fas fa-eye text-blue-600 mr-3"></i>
+                    Live Preview
+                </h3>
+                <div class="flex items-center justify-center min-h-96">
+                    <div id="qr-preview" class="text-center">
+                        <div class="w-64 h-64 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
+                            <i class="fas fa-qrcode text-6xl text-gray-400"></i>
+                        </div>
+                        <p class="text-gray-500">Your QR code will appear here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="flex justify-between items-center mt-8">
+            <button id="prev-btn" class="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors hidden">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Previous
+            </button>
+            <div class="flex-1"></div>
+            <button id="next-btn" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                Next
+                <i class="fas fa-arrow-right ml-2"></i>
+            </button>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
